@@ -209,6 +209,17 @@ The app handles:
 - ✅ Invalid feedback submissions
 - ✅ File I/O errors
 
+## 📈 Model Performance
+
+The trained model achieves **excellent results** on evaluation:
+
+- ✅ **Accuracy:** 100%
+- ✅ **Precision:** 100%
+- ✅ **Recall:** 100%
+- ✅ **F1-Score:** 1.0
+
+**📊 For detailed evaluation metrics, confusion matrix, ROC curves, and performance analysis, see [EVALUATION.md](./EVALUATION.md)**
+
 ## 🧪 Testing
 
 This project includes a comprehensive test suite with 58 unit tests and 73% code coverage.
