@@ -1,0 +1,268 @@
+﻿<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Check Email - Spam Detector</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+
+  <!-- Inline SVG favicon (signature-style icon) -->
+  <link rel="icon" href="data:image/svg+xml;utf8,
+    %3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E
+      %3Crect width='100%25' height='100%25' fill='%2306d6a0' rx='12'/%3E
+      %3Cpath d='M16 36c6-8 18-12 28-10' stroke='%23fff' stroke-width='3' fill='none' stroke-linecap='round'/%3E
+    %3C/svg%3E">
+
+  <style>
+    :root{
+      --bg1:#eef2ff; --bg2:#e6f7ff; --accent:#06d6a0; --accent-2:#118ab2;
+      --muted:#6b7280; --card:#ffffff; --glass: rgba(255,255,255,0.6);
+      --radius:14px; --shadow:0 14px 40px rgba(2,6,23,0.12);
+      --max-width:1100px;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0; font-family: Inter, "Segoe UI", system-ui, -apple-system, Roboto, "Helvetica Neue", Arial;
+      background: linear-gradient(135deg,var(--bg1),var(--bg2));
+      display:flex; align-items:center; justify-content:center; padding:28px;
+      -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale;
+      color:#0f172a;
+    }
+
+    /* Page container */
+    .page {
+      width:100%; max-width:var(--max-width); margin:0 auto;
+      display:grid; grid-template-columns: 1fr 420px; gap:24px; align-items:start;
+    }
+
+    /* Main form card */
+    .card {
+      background:var(--card); border-radius:var(--radius); padding:26px;
+      box-shadow:var(--shadow); border:1px solid rgba(15,23,42,0.04);
+    }
+
+    header.top {
+      display:flex; justify-content:space-between; align-items:flex-start; gap:12px;
+      margin-bottom:12px;
+    }
+    .title {
+      margin:0; font-size:20px; font-weight:800; display:flex; align-items:center; gap:12px;
+    }
+    .sig-icon{
+      width:40px; height:40px; border-radius:10px; background:linear-gradient(135deg,#06d6a0,#118ab2);
+      display:inline-flex; align-items:center; justify-content:center; color:#fff; font-weight:800; font-size:14px;
+      box-shadow:0 8px 20px rgba(6,214,160,0.12);
+    }
+    .subtitle { margin:6px 0 0 0; color:var(--muted); font-size:14px; line-height:1.45 }
+
+    /* Nav / small actions */
+    .nav { display:flex; gap:8px; align-items:center; }
+    .nav a { text-decoration:none; color:var(--muted); font-size:13px; padding:8px 10px; border-radius:10px; }
+    .nav a:hover { background:#f8fafc }
+
+    form{display:flex; flex-direction:column; gap:14px}
+    label{font-size:13px; color:var(--muted)}
+    textarea{
+      width:100%; min-height:260px; padding:16px; border-radius:12px; border:1px solid #e6eef9;
+      font-size:15px; resize:vertical; line-height:1.5; color:#0f172a; background:linear-gradient(180deg,#fff,#fbfdff);
+      transition:box-shadow .12s, border-color .12s;
+    }
+    textarea:focus{outline:none; box-shadow:0 10px 30px rgba(17,24,39,0.06); border-color:var(--accent-2)}
+    .controls{display:flex; gap:12px; align-items:center; margin-top:6px}
+    .btn{
+      padding:12px 18px; border-radius:10px; border:none; cursor:pointer; font-weight:800;
+      transition:transform .12s ease, box-shadow .12s ease;
+    }
+    .btn.primary{background:var(--accent); color:#fff; box-shadow:0 10px 30px rgba(6,214,160,0.12)}
+    .btn.primary:hover{transform:translateY(-3px)}
+    .btn.ghost{background:#f1f5f9; color:#0f172a}
+    .btn.ghost:hover{transform:translateY(-2px)}
+    .meta{margin-left:auto; color:var(--muted); font-size:13px}
+
+    /* Right column card */
+    .side {
+      display:flex; flex-direction:column; gap:14px;
+      align-self:start;
+    }
+    .side .panel {
+      position:relative;
+      background:linear-gradient(180deg,#ffffff,#fbfdff); padding:18px; border-radius:12px;
+      box-shadow:0 8px 24px rgba(2,6,23,0.06); border:1px solid rgba(15,23,42,0.03);
+    }
+    /* HOW IT WORKS label placed outside and above the white box, bold */
+    .how-outside {
+      font-weight:900; letter-spacing:0.6px; font-size:14px; color:#0f172a;
+      margin-left:6px; margin-bottom:6px;
+    }
+    .how-title {
+      font-weight:700; letter-spacing:0.4px; font-size:13px; color:#0f172a; margin-bottom:10px;
+    }
+    .step{display:flex; gap:12px; align-items:flex-start; margin-bottom:12px}
+    .step .num{width:40px; height:40px; border-radius:10px; background:#f1f5f9; display:flex; align-items:center; justify-content:center; font-weight:800; color:#0f172a}
+    .step strong{display:block}
+    .step small{display:block; color:var(--muted); margin-top:4px}
+
+    /* examples chips */
+    .examples{display:flex; gap:8px; flex-wrap:wrap; margin-top:8px}
+    .chip{background:#f8fafc; padding:8px 12px; border-radius:999px; font-size:13px; color:#0f172a; cursor:pointer; border:1px solid rgba(15,23,42,0.03)}
+    .chip:hover{background:#eef6ff; transform:translateY(-2px)}
+
+    /* result helpers (client-side) */
+    .actions { display:flex; gap:8px; margin-top:12px; flex-wrap:wrap }
+    .copy-note { font-size:13px; color:var(--muted); margin-top:8px }
+
+    footer{margin-top:14px; color:var(--muted); font-size:13px}
+
+    /* subtle invalid highlight (used by script) */
+    .invalid-highlight { border: 2px solid #ef4444 !important; box-shadow: 0 6px 18px rgba(239,68,68,0.08); }
+
+    /* responsive */
+    @media (max-width:980px){
+      .page{grid-template-columns:1fr; gap:18px}
+      .side{order:-1}
+    }
+  </style>
+</head>
+<body>
+  <main class="page" role="main" aria-labelledby="pageTitle">
+    <section class="card" aria-labelledby="pageTitle">
+      <header class="top">
+        <div>
+          <h1 id="pageTitle" class="title">
+            <span class="sig-icon" aria-hidden="true">SD</span>
+            <span style="display:inline-block; vertical-align:middle;">Paste email to analyze</span>
+          </h1>
+          <p class="subtitle">Paste the full email body or a suspicious message.</p>
+        </div>
+
+        <nav class="nav" aria-label="top actions">
+          <a href="/" title="Home"><b>Home</b></a>
+        </nav>
+      </header>
+
+      <form id="analyzeForm" action="/check" method="post" onsubmit="return validateAndSubmit(event)" novalidate>
+        <label for="email_text" class="sr-only"><b>Email text</b></label>
+        <textarea id="email_text" name="email_text" placeholder="Paste the full email body or a suspicious message here..."></textarea>
+
+        <div class="controls" role="group" aria-label="form actions">
+          <button class="btn primary" type="submit">Check Email</button>
+          <button class="btn ghost" type="button" id="clearBtn">Clear</button>
+          <div class="meta">Tip: include subject & sender for better results</div>
+        </div>
+
+        <div style="margin-top:10px; color:var(--muted); font-size:13px">
+          Quick examples:
+          <div class="examples" aria-hidden="false">
+            <div class="chip" onclick="useExample('Subject: You won! Claim your Amazon gift card now\\n\\nDear Customer,\\n\\nCongratulations! You have been selected as one of our lucky winners. Click the link below to verify your identity and claim your FREE $500 Amazon Gift Card today!\\n\\nhttp://amaz0n-rewards-verify.com/claim\\n\\nThis offer expires in 24 hours.\\n\\nBest regards,\\nAmazon Rewards Team')">Fake Prize</div>
+            <div class="chip" onclick="useExample('Subject: URGENT: Suspicious activity on your Chase account\\n\\nHello,\\n\\nWe have detected unauthorized login attempts on your Chase bank account. For your security, please verify your account information immediately by clicking this link:\\n\\nhttp://chase-security-verify.ru/login\\n\\nIf this was not you, change your password immediately.\\n\\nChase Security Team')">Bank Phishing</div>
+            <div class="chip" onclick="useExample('Hi team,\\n\\nI wanted to follow up on the Q3 budget proposal we discussed last week. Could you send over your departmental forecasts by end of week? We need to finalize the spreadsheet before the executive review on Friday.\\n\\nThanks!\\nMichael')">Work Email</div>
+          </div>
+        </div>
+      </form>
+
+      <footer>Made with love by Bibiayesha</footer>
+    </section>
+
+    <aside class="side" aria-labelledby="howTitle">
+      <!-- Bold label outside and above the white box -->
+      <div class="how-outside">HOW IT WORKS</div>
+
+      <div class="panel" id="howPanel" role="region" aria-label="How it works">
+        <div class="how-title" id="howTitle">Quick steps</div>
+
+        <div class="step">
+          <div class="num">1</div>
+          <div>
+            <strong>Paste</strong>
+            <small>Paste the full email body or a suspicious message.</small>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="num">2</div>
+          <div>
+            <strong>Analyze</strong>
+            <small>Model checks for spam signals and returns a label with confidence.</small>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="num">3</div>
+          <div>
+            <strong>Act</strong>
+            <small>Copy the result, check another email, or refine the message.</small>
+          </div>
+        </div>
+
+        <div class="actions" style="margin-top:6px">
+          <button class="chip" onclick="openExamples()">View examples</button>
+          <button class="chip" onclick="document.getElementById('email_text').focus()">Start typing</button>
+        </div>
+      </div>
+
+      <div style="text-align:center; font-size:13px; color:var(--muted)">
+        Local demo - No data stored
+      </div>
+    </aside>
+  </main>
+
+  <script>
+    // Ensure clear button exists and works
+    document.getElementById('clearBtn').addEventListener('click', function(){
+      const ta = document.getElementById('email_text');
+      ta.value = '';
+      ta.focus();
+    });
+
+    // Use examples (insert real newlines)
+    function useExample(text){
+      const ta = document.getElementById('email_text');
+      ta.value = text.replace(/\\n/g, '\n');
+      ta.focus();
+    }
+    function openExamples(){
+      useExample("Subject: Example\\nThis is a sample email to test the detector.");
+    }
+
+    // Custom validation + prevent native browser alert
+    function validateAndSubmit(e){
+      // If called from onsubmit attribute, e may be event or undefined
+      if(e && e.preventDefault) e.preventDefault();
+
+      const ta = document.getElementById('email_text');
+      const raw = (ta.value || '').trim();
+
+      // Remove any previous highlight
+      ta.classList.remove('invalid-highlight');
+
+      if(!raw){
+        // custom visual feedback instead of browser alert
+        ta.classList.add('invalid-highlight');
+        ta.focus();
+        // remove highlight after a short delay
+        setTimeout(()=> ta.classList.remove('invalid-highlight'), 1600);
+        return false;
+      }
+
+      // If you want to submit the form normally to /check, uncomment the next line:
+      // document.getElementById('analyzeForm').submit();
+
+      // Otherwise, if you use AJAX, call your endpoint here.
+      // Example: send via fetch to /predict (if using JSON endpoint)
+      // For compatibility with your existing server route (/check), submit the form programmatically:
+      // create a hidden form submission to preserve original behavior:
+      const form = document.getElementById('analyzeForm');
+      // If the form's action is /check and you want a normal POST, use:
+      form.submit();
+
+      return true;
+    }
+
+    // Prevent accidental native validation popups by removing 'required' attribute at runtime (if present)
+    (function removeNativeRequired(){
+      const ta = document.getElementById('email_text');
+      if(ta.hasAttribute('required')) ta.removeAttribute('required');
+    })();
+  </script>
+</body>
+</html>

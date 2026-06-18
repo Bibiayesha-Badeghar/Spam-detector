@@ -1,0 +1,394 @@
+﻿<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Result - Spam Detector</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <style>
+    :root{
+      --bg1:#eef6ff; --bg2:#f0fbf8;
+      --card:#ffffff;
+      --accent:#06d6a0; --accent-2:#118ab2; --danger:#ef4444;
+      --muted:#6b7280; --radius:14px; --shadow:0 20px 60px rgba(2,6,23,0.12);
+      --max-width:980px;
+    }
+    *{
+      box-sizing:border-box
+    }
+    html, body
+    {
+      height:100%;
+    }
+    body
+    {
+      margin:0; 
+      font-family:Inter, "Segoe UI", system-ui, -apple-system, Roboto, Arial;
+      background:linear-gradient(135deg,var(--bg1),var(--bg2));
+      display:flex; 
+      align-items:center; 
+      justify-content:center; 
+      padding:28px; 
+      color:#0f172a;
+    }
+    .wrap 
+    {
+      width:100%; 
+      max-width:var(--max-width);
+      margin:0 auto;
+    }
+    .card
+    {
+      background:var(--card); 
+      border-radius:var(--radius); 
+      padding:22px; 
+      box-shadow:var(--shadow)
+    }
+    header
+    {
+      display:flex; 
+      justify-content:space-between; 
+      align-items:center
+    }
+    .brand
+    {
+      display:flex; 
+      align-items:center; 
+      gap:12px
+    }
+    .sig
+    {
+      width:48px; 
+      height:48px; 
+      border-radius:10px; 
+      display:flex; 
+      align-items:center; 
+      justify-content:center;
+      background:linear-gradient(135deg,var(--accent),var(--accent-2)); 
+      color:#fff; 
+      font-weight:900
+    }
+    h2
+    {
+      margin:0; 
+      font-size:20px
+    }
+    .sub
+    {
+      color:var(--muted); 
+      font-size:13px
+    }
+    .home-btn
+    {
+      padding:8px 12px; 
+      border-radius:10px; 
+      background:#f8fafc; 
+      border:1px solid #e5e7eb;
+      color:#0f172a; 
+      text-decoration:none; 
+      font-weight:700
+    }
+    .result-row
+    {
+      display:grid; 
+      grid-template-columns:1fr 320px; 
+      gap:20px; 
+      margin-top:18px
+    }
+    .email-box
+    {
+      background:#fbfdff; 
+      padding:16px; 
+      border-radius:12px; 
+      border:1px solid #eef6ff;
+      white-space:pre-wrap; 
+      max-height:420px; 
+      overflow:auto
+    }
+    .summary
+    {
+      padding:18px; 
+      border-radius:12px; 
+      background:#fff; 
+      border:1px solid #eef6ff
+    }
+    .label
+    {
+      padding:6px 10px; 
+      border-radius:999px; 
+      font-weight:900; 
+      color:#fff
+    }
+    .label.real
+    {
+      background:var(--accent)
+    }
+    .label.spam
+    {
+      background:var(--danger)
+    }
+    .confidence
+    {
+      font-size:13px; 
+      color:var(--muted)
+    }
+    .meter
+    {
+      height:14px; 
+      background:#eef6ff; 
+      border-radius:999px; 
+      overflow:hidden; 
+      margin-top:12px
+    }
+    .meter > i
+    {
+      display:block; 
+      height:100%; 
+      background:linear-gradient(90deg,var(--accent),var(--accent-2)) !important;
+      transition: background 0.3s ease;
+    }
+    .actions 
+    {
+      display:flex; 
+      gap:10px; 
+      margin-top:14px
+    }
+    .btn
+    {
+      padding:10px 14px; 
+      border-radius:10px; 
+      border:none; 
+      cursor:pointer; 
+      font-weight:800; 
+      text-decoration:none
+    }
+    .btn.primary
+    {
+      background:var(--accent); 
+      color:#fff
+    }
+    .btn.ghost
+    {
+      background:#f1f5f9; 
+      color:#0f172a
+    }
+    .btn.copy
+    {
+      background:#ffd166; 
+      color:#0f172a
+    }
+    footer
+    {
+      margin-top:18px; 
+      color:var(--muted); 
+      font-size:13px; 
+      text-align:center
+    }
+    .toast
+    {
+      position:fixed; 
+      right:20px; bottom:20px; 
+      background:#111827; color:#fff; 
+      padding:10px 14px; 
+      border-radius:8px;
+      opacity:0; 
+      transform:translateY(8px); 
+      transition:opacity .18s
+    }
+    .toast.show
+    {
+      opacity:1; 
+      transform:translateY(0)
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <header>
+        <div class="brand">
+          <div class="sig">SD</div>
+          <div>
+            <h2>Email Analysis Result</h2>
+            <div class="sub">Model verdict with confidence score</div>
+          </div>
+        </div>
+        <a class="home-btn" href="/">Home</a>
+      </header>
+
+      <div class="result-row">
+        <div>
+          <div class="email-box" id="emailBox">{{ email | e }}</div>
+        </div>
+
+        <aside class="summary">
+          {% if error %}
+            <div style="padding:12px; background:#fee2e2; border:1px solid #fecaca; border-radius:8px; color:#991b1b; font-size:14px">
+              <strong>Error:</strong> {{ error }}
+            </div>
+          {% else %}
+            <div style="display:flex; justify-content:space-between">
+              <div>
+                <div id="summaryLabel" class="label {% if 'spam' in label.lower() %}spam{% else %}real{% endif %}">{{ label }}</div>
+                <div class="confidence">Confidence: <strong id="summaryConfidence">{{ confidence }}</strong></div>
+              </div>
+              <div style="font-size:12px; color:var(--muted)">Score {{ confidence_value|float|round(2) }}</div>
+            </div>
+
+            <!-- Meter bar: width set via JS -->
+            <div class="meter" aria-hidden="true">
+              <i id="meterFill" style="width:0%"></i>
+            </div>
+
+            <div class="actions">
+              <button class="btn copy" id="copyBtn">Copy Result</button>
+              <button class="btn primary" id="checkAnotherBtn">Check Another Email</button>
+              <button class="btn ghost" id="highlightBtn">Highlight Suspicious</button>
+            </div>
+
+            <!-- Feedback section for uncertain predictions -->
+            {% if is_uncertain and not error %}
+            <div style="margin-top:14px; padding-top:14px; border-top:1px solid #e5e7eb">
+              <div style="font-size:12px; font-weight:700; color:var(--danger); margin-bottom:8px">
+                LOW CONFIDENCE - Help improve the model!
+              </div>
+              <div style="font-size:12px; color:var(--muted); margin-bottom:10px">
+                Is this prediction correct? Let us know to improve the model.
+              </div>
+              <div style="display:flex; gap:8px">
+                {% if predicted_class == 0 %}
+                  <button class="btn ghost feedback-btn" style="flex:1; font-size:12px; padding:8px 10px" onclick="submitFeedback(1)">
+                    Actually SPAM
+                  </button>
+                  <button class="btn ghost feedback-btn" style="flex:1; font-size:12px; padding:8px 10px" onclick="submitFeedback(0)" disabled>
+                    Correct
+                  </button>
+                {% else %}
+                  <button class="btn ghost feedback-btn" style="flex:1; font-size:12px; padding:8px 10px" onclick="submitFeedback(0)">
+                    Actually REAL
+                  </button>
+                  <button class="btn ghost feedback-btn" style="flex:1; font-size:12px; padding:8px 10px" onclick="submitFeedback(1)" disabled>
+                    Correct
+                  </button>
+                {% endif %}
+              </div>
+              <div id="feedbackStatus" style="margin-top:8px; font-size:12px; text-align:center; color:var(--muted)"></div>
+            </div>
+            {% endif %}
+          {% endif %}
+        </aside>
+      </div>
+
+      <footer>Made with &#10084; by Bibiayesha</footer>
+    </div>
+  </div>
+
+  <div id="toast" class="toast">Copied to clipboard</div>
+
+  <!-- Store template data directly in script -->
+  <script>
+    // Template data passed directly from Flask with safe defaults
+    let emailText = {{ email | tojson | safe }};
+    let predictedClass = {{ predicted_class | default(-1) | int }};
+    let confidenceValue = {{ confidence_value | default(0) | float }};
+
+
+
+    // Submit feedback and retrain model
+    function submitFeedback(actualLabel) {
+      const statusDiv = document.getElementById('feedbackStatus');
+      statusDiv.innerText = 'Sending feedback...';
+      
+      fetch('/feedback', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({
+          email_text: emailText,
+          actual_label: actualLabel,
+          predicted_label: predictedClass,
+          confidence: confidenceValue
+        })
+      })
+      .then(r => r.json())
+      .then(data => {
+        if (data.success) {
+          statusDiv.innerHTML = '<strong>Thank you!</strong> Feedback saved. The model will learn from this.';
+          statusDiv.style.color = '#059669';
+          // Disable feedback buttons after submission
+          document.querySelectorAll('.feedback-btn').forEach(btn => btn.disabled = true);
+        } else {
+          statusDiv.innerText = 'Error: ' + data.error;
+          statusDiv.style.color = '#dc2626';
+        }
+      })
+      .catch(err => {
+        statusDiv.innerText = 'Failed to send feedback';
+        statusDiv.style.color = '#dc2626';
+      });
+    }
+
+    // Set meter width and color based on prediction
+    document.addEventListener('DOMContentLoaded', function(){
+      const meterValue = confidenceValue || 0;
+      const widthPercent = Math.min(Math.max(meterValue * 100, 0), 100);
+      const meterFill = document.getElementById('meterFill');
+      
+      if (meterFill) {
+        // Set color based on prediction
+        if (predictedClass === 1) {
+          // SPAM - Red
+          meterFill.style.cssText = `width: ${widthPercent.toFixed(1)}%; background: linear-gradient(90deg, #ef4444, #dc2626) !important; display: block; height: 100%;`;
+        } else {
+          // LEGITIMATE - Green
+          meterFill.style.cssText = `width: ${widthPercent.toFixed(1)}%; background: linear-gradient(90deg, #06d6a0, #059669) !important; display: block; height: 100%;`;
+        }
+      }
+    });
+
+    // Copy result button
+    const copyBtn = document.getElementById('copyBtn');
+    if (copyBtn) {
+      copyBtn.addEventListener('click', function(){
+        const label = document.getElementById('summaryLabel').innerText.trim();
+        const conf = document.getElementById('summaryConfidence').innerText.trim();
+        const email = document.getElementById('emailBox').innerText.trim();
+        const text = `Result: ${label} (${conf})\n\n${email}`;
+        navigator.clipboard.writeText(text).then(() => {
+          const t = document.getElementById('toast');
+          t.classList.add('show');
+          setTimeout(()=> t.classList.remove('show'), 1600);
+        });
+      });
+    }
+
+    // Check another email button
+    const checkAnotherBtn = document.getElementById('checkAnotherBtn');
+    if (checkAnotherBtn) {
+      checkAnotherBtn.addEventListener('click', function(){
+        window.location.href = '/checkpage';
+      });
+    }
+
+    // Highlight suspicious words button
+    const highlightBtn = document.getElementById('highlightBtn');
+    if (highlightBtn) {
+      highlightBtn.addEventListener('click', function(){
+        const box = document.getElementById('emailBox');
+        if (!box.innerHTML.includes('<mark>')) {
+          const raw = box.innerText;
+          const words = ['click','verify','bank','account','lottery','prize','urgent','suspended','password','transfer','http','https'];
+          let html = raw.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+          words.forEach(w=>{
+            const regex = new RegExp(`\\b(${w})\\b`, 'gi');
+            html = html.replace(regex, '<mark style="background:yellow; padding:2px">$1</mark>');
+          });
+          box.innerHTML = html;
+          highlightBtn.innerText = 'Highlighted';
+        } else {
+          box.innerText = box.innerText;
+          highlightBtn.innerText = 'Highlight Suspicious';
+        }
+      });
+    }
+  </script>
+</body>
+</html>

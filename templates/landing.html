@@ -1,0 +1,121 @@
+﻿<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Spam Detector</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <style>
+    :root{
+      --bg1:#a1c4fd; --bg2:#c2e9fb; --accent:#06d6a0; --muted:#6b7280;
+      --card:#ffffff; --glass: rgba(255,255,255,0.6);
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0; min-height:100vh;
+      font-family: Inter, "Segoe UI", system-ui, -apple-system, Roboto, "Helvetica Neue", Arial;
+      background: linear-gradient(135deg,var(--bg1),var(--bg2));
+      display:flex; align-items:center; justify-content:center;
+      padding:32px;
+    }
+
+    /* layout */
+    .wrap{
+      width:100%; max-width:980px; display:grid; grid-template-columns:1fr 420px; gap:28px;
+      align-items:center;
+    }
+
+    /* left hero */
+    .hero{ color:#0f172a; }
+    .badge{
+      display:inline-block; background:var(--glass); padding:8px 12px; border-radius:999px;
+      font-weight:700; color:var(--muted); margin-bottom:14px; backdrop-filter: blur(6px);
+    }
+    h1{font-size:28px; margin:6px 0 12px}
+    p.lead{margin:0 0 20px; color:var(--muted); line-height:1.5}
+    .actions{display:flex; gap:12px; align-items:center}
+    .btn{
+      display:inline-flex; align-items:center; gap:10px; padding:12px 18px; border-radius:10px;
+      text-decoration:none; color:#fff; font-weight:700; border:none; cursor:pointer;
+      transition:transform .12s ease, box-shadow .12s ease;
+    }
+    .btn.primary{background:var(--accent); box-shadow:0 6px 18px rgba(6,214,160,0.18)}
+    .btn.primary:hover{transform:translateY(-3px)}
+
+    /* right column: label outside the card + card */
+    .right-col{ display:flex; flex-direction:column; gap:12px; align-items:stretch; }
+    .how-label{
+      font-weight:800; /* bold */
+      font-size:15px;
+      color:#0f172a;
+      align-self:flex-start;
+      background:transparent;
+      padding:6px 10px;
+      border-radius:8px;
+      margin-left:6px;
+    }
+
+    .card{
+      background:linear-gradient(180deg, rgba(255,255,255,0.95), rgba(255,255,255,0.9));
+      padding:22px; border-radius:14px; box-shadow:0 12px 40px rgba(2,6,23,0.12);
+    }
+    .feature-list{display:grid; gap:12px}
+    .feature{display:flex; gap:12px; align-items:flex-start}
+    .dot{width:44px; height:44px; border-radius:10px; background:#f1f5f9; display:flex; align-items:center; justify-content:center; color:#0f172a; font-weight:700}
+    .feature strong{display:block; margin-bottom:4px}
+    .feature small{color:var(--muted)}
+
+    footer{margin-top:18px; color:var(--muted); font-size:13px}
+
+    @media (max-width:880px){
+      .wrap{grid-template-columns:1fr; padding:12px}
+      .how-label{align-self:flex-start; margin-left:0}
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="hero">
+      <div class="badge">Beta - Email Safety</div>
+      <h1>Spam Detector - fast, simple, and private</h1>
+      <p class="lead">Paste an email and get an instant classification with confidence. Built for learning and experimentation - no account required.</p>
+      <div class="actions">
+        <a class="btn primary" href="/checkpage">Start Checking</a>
+      </div>
+      <footer>Made with love by Bibiayesha</footer>
+    </div>
+
+    <div class="right-col">
+      <!-- bold label placed outside and above the white card -->
+      <div class="how-label">HOW IT WORKS</div>
+
+      <div class="card" aria-labelledby="how-label">
+        <div class="feature-list">
+          <div class="feature">
+            <div class="dot">1</div>
+            <div>
+              <strong>Paste</strong>
+              <small>Paste the full email body or a suspicious message.</small>
+            </div>
+          </div>
+
+          <div class="feature">
+            <div class="dot">2</div>
+            <div>
+              <strong>Analyze</strong>
+              <small>Model checks for spam signals and returns a label with confidence.</small>
+            </div>
+          </div>
+
+          <div class="feature">
+            <div class="dot">3</div>
+            <div>
+              <strong>Act</strong>
+              <small>Copy the result, check another email, or refine the message.</small>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
