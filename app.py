@@ -18,9 +18,9 @@ from flask import Flask, render_template, request, jsonify
 
 app = Flask(__name__)
 
-# Configuration
-UNCERTAINTY_THRESHOLD = 0.60  # Flag predictions below this as uncertain
-FEEDBACK_FILE = 'user_feedback.json'
+# Configuration (override via environment variables)
+UNCERTAINTY_THRESHOLD = float(os.environ.get('UNCERTAINTY_THRESHOLD', '0.60'))
+FEEDBACK_FILE = os.environ.get('FEEDBACK_FILE', 'user_feedback.json')
 
 def load_model_and_vectorizer():
     """Load the trained model and vectorizer from disk."""
@@ -145,6 +145,27 @@ def check():
         label = "SPAM" if pred == 1 else "REAL"
         confidence = f"{confidence_value * 100:.1f}%"
         
+        # Explainability: find top contributing features
+        top_features = []
+        try:
+            feature_names = vectorizer.get_feature_names_out()
+            importances = model.feature_importances_
+            # Get non-zero TF-IDF features present in this input
+            nonzero_indices = X.nonzero()[1]
+            # Score each present feature by its model importance * TF-IDF weight
+            feature_scores = []
+            for idx in nonzero_indices:
+                score = float(importances[idx]) * float(X[0, idx])
+                feature_scores.append((feature_names[idx], score))
+            # Sort by score descending and take top 5
+            feature_scores.sort(key=lambda x: x[1], reverse=True)
+            top_features = [
+                {"word": word, "score": round(score, 4)}
+                for word, score in feature_scores[:5]
+            ]
+        except Exception:
+            top_features = []
+        
         return render_template(
             "result.html",
             email=email_text,
@@ -153,7 +174,8 @@ def check():
             confidence_value=confidence_value,
             is_uncertain=is_uncertain,
             predicted_class=pred,
-            threshold=UNCERTAINTY_THRESHOLD
+            threshold=UNCERTAINTY_THRESHOLD,
+            top_features=top_features
         )
         
     except Exception as e:

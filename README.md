@@ -242,14 +242,21 @@ pytest --cov=. --cov-report=html
 
 ## Configuration
 
-Current configuration lives in `app.py`:
+All settings can be overridden via environment variables:
 
-```python
-UNCERTAINTY_THRESHOLD = 0.60
-FEEDBACK_FILE = "user_feedback.json"
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `HOST` | `127.0.0.1` | Server bind address |
+| `PORT` | `5000` | Server port |
+| `FLASK_DEBUG` | `true` | Enable debug mode |
+| `UNCERTAINTY_THRESHOLD` | `0.60` | Confidence threshold for feedback prompt |
+| `FEEDBACK_FILE` | `user_feedback.json` | Path to feedback storage file |
+
+Example:
+
+```bash
+UNCERTAINTY_THRESHOLD=0.75 PORT=8080 python app.py
 ```
-
-A future production-readiness improvement is moving these values to environment variables.
 
 ## Error Handling
 
@@ -268,7 +275,6 @@ The app handles:
 - Evaluation does not yet use a large external holdout dataset
 - Saved model files are generated locally and ignored by Git
 - `/retrain` is available as a local demo endpoint and should be protected before deployment
-- Configuration is not yet environment-based
 
 ## Roadmap
 
