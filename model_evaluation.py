@@ -75,7 +75,7 @@ def evaluate_model():
     
     try:
         roc_auc = roc_auc_score(labels, y_pred_proba)
-    except:
+    except Exception:
         roc_auc = 0.0
     
     # Confusion matrix

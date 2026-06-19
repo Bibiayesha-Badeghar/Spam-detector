@@ -1,5 +1,7 @@
 # Spam Detector with Self-Learning Feedback
 
+[![CI](https://github.com/Bibiayesha-Badeghar/Spam-detector/actions/workflows/tests.yml/badge.svg)](https://github.com/Bibiayesha-Badeghar/Spam-detector/actions/workflows/tests.yml)
+
 A Flask-based machine learning web app that classifies email or message text as spam or legitimate using TF-IDF features and a Random Forest classifier.
 
 The project is designed as a portfolio-friendly demonstration of a complete ML workflow: data loading, model training, prediction, confidence scoring, user feedback collection, automated tests, and evaluation reporting.
