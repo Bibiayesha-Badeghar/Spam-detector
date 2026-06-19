@@ -17,6 +17,16 @@ The project is designed as a portfolio-friendly demonstration of a complete ML w
 - Automated test suite with route, model, and validation tests
 - Model evaluation report with metrics and visualizations
 
+## Screenshots
+
+**Landing Page**
+
+![Landing Page](screenshots/landing.png)
+
+**Spam Detection Result**
+
+![Result Page](screenshots/result.png)
+
 ## Project Structure
 
 ```text
@@ -25,6 +35,8 @@ Spam-detector/
 ├── train_model.py                  # Model training script
 ├── model_evaluation.py             # Evaluation script for saved model
 ├── dataset.json                    # 100 labeled samples: 50 spam, 50 ham
+├── Dockerfile                      # Docker image definition
+├── docker-compose.yml              # One-command container setup
 ├── EVALUATION.md                   # Model evaluation report
 ├── model_metrics.json              # Generated evaluation metrics
 ├── model_evaluation_curves.png     # ROC and precision-recall curves
@@ -32,6 +44,9 @@ Spam-detector/
 ├── requirements-dev.txt            # Development and testing dependencies
 ├── pytest.ini                      # Pytest configuration
 ├── user_feedback.example.json      # Safe example feedback file
+├── screenshots/
+│   ├── landing.png                 # Landing page screenshot
+│   └── result.png                  # Result page screenshot
 ├── templates/
 │   ├── landing.html                # Home page
 │   ├── index.html                  # Message input form
