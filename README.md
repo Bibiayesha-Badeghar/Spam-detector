@@ -89,6 +89,26 @@ Development tools:
 - `flake8` for linting
 - `matplotlib` and `numpy` for evaluation visualizations
 
+## Docker
+
+Run the entire app with a single command — no local Python installation required:
+
+```bash
+docker compose up --build
+```
+
+The app will be available at:
+
+```text
+http://localhost:5000/
+```
+
+To stop the container:
+
+```bash
+docker compose down
+```
+
 ## Usage
 
 ### Web App
@@ -232,7 +252,6 @@ The app handles:
 - Saved model files are generated locally and ignored by Git
 - `/retrain` is available as a local demo endpoint and should be protected before deployment
 - Configuration is not yet environment-based
-- No Docker or CI pipeline yet
 
 ## Roadmap
 

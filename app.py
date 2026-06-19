@@ -1,4 +1,4 @@
-﻿"""
+"""
 SPAM DETECTOR - FLASK WEB APPLICATION
 ======================================
 Interactive web interface for spam detection with self-learning capability.
@@ -272,8 +272,12 @@ def status():
         }), 500
 
 if __name__ == "__main__":
+    host = os.environ.get("HOST", "127.0.0.1")
+    port = int(os.environ.get("PORT", 5000))
+    debug = os.environ.get("FLASK_DEBUG", "true").lower() in ("1", "true", "yes")
+
     if os.environ.get("WERKZEUG_RUN_MAIN") == "true":
-        webbrowser.open("http://127.0.0.1:5000/")
+        webbrowser.open(f"http://127.0.0.1:{port}/")
     
     print("\n" + "="*60)
     print("SPAM DETECTOR WEB APP STARTING")
@@ -281,7 +285,7 @@ if __name__ == "__main__":
     print(f"Model loaded: {model is not None}")
     print(f"Uncertainty threshold: {UNCERTAINTY_THRESHOLD*100:.0f}%")
     print(f"Feedback file: {FEEDBACK_FILE}")
-    print("\nOpen: http://127.0.0.1:5000/")
+    print(f"\nOpen: http://{host}:{port}/")
     print("="*60 + "\n")
     
-    app.run(debug=True, use_reloader=True)
+    app.run(host=host, port=port, debug=debug, use_reloader=debug)
