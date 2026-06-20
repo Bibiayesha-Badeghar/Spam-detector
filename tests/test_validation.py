@@ -12,33 +12,39 @@ class TestEmailValidation:
 
     def test_valid_email_accepted(self, validation_test_cases):
         """Test that valid emails pass validation"""
-        for email in validation_test_cases['valid']:
+        for email in validation_test_cases["valid"]:
             is_valid, message = validate_email_input(email)
             assert is_valid is True, f"Valid email rejected: {email}"
-            assert message == "Valid", f"Valid email returned unexpected message: {message}"
+            assert (
+                message == "Valid"
+            ), f"Valid email returned unexpected message: {message}"
 
     def test_empty_email_rejected(self, validation_test_cases):
         """Test that empty email is rejected"""
-        email, expected_msg = validation_test_cases['invalid']['empty']
+        email, expected_msg = validation_test_cases["invalid"]["empty"]
         is_valid, message = validate_email_input(email)
         assert is_valid is False, "Empty email should be invalid"
-        assert "empty" in message.lower(), f"Expected 'empty' in message, got: {message}"
+        assert (
+            "empty" in message.lower()
+        ), f"Expected 'empty' in message, got: {message}"
 
     def test_too_short_email_rejected(self, validation_test_cases):
         """Test that email shorter than 5 chars is rejected"""
-        email, expected_msg = validation_test_cases['invalid']['too_short']
+        email, expected_msg = validation_test_cases["invalid"]["too_short"]
         is_valid, message = validate_email_input(email)
         assert is_valid is False, "Too-short email should be invalid"
-        assert "5 character" in message or "characters" in message, \
-            f"Expected character count message, got: {message}"
+        assert (
+            "5 character" in message or "characters" in message
+        ), f"Expected character count message, got: {message}"
 
     def test_too_long_email_rejected(self, validation_test_cases):
         """Test that email longer than 10000 chars is rejected"""
-        email, expected_msg = validation_test_cases['invalid']['too_long']
+        email, expected_msg = validation_test_cases["invalid"]["too_long"]
         is_valid, message = validate_email_input(email)
         assert is_valid is False, "Too-long email should be invalid"
-        assert "exceeds" in message.lower() or "maximum" in message.lower(), \
-            f"Expected maximum length message, got: {message}"
+        assert (
+            "exceeds" in message.lower() or "maximum" in message.lower()
+        ), f"Expected maximum length message, got: {message}"
 
     def test_minimum_length_boundary(self):
         """Test boundary case: exactly 5 characters (should pass)"""
@@ -76,7 +82,9 @@ class TestEmailValidation:
         is_valid, message = validate_email_input(email)
         # Should be valid as long as length requirements are met
         if len(email.strip()) >= 5:
-            assert is_valid is True, "Email with newlines should be valid if long enough"
+            assert (
+                is_valid is True
+            ), "Email with newlines should be valid if long enough"
 
     def test_email_with_special_characters(self):
         """Test that email with special characters is handled"""
