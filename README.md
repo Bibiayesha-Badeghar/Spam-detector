@@ -2,7 +2,7 @@
 
 [![CI](https://github.com/Bibiayesha-Badeghar/Spam-detector/actions/workflows/tests.yml/badge.svg)](https://github.com/Bibiayesha-Badeghar/Spam-detector/actions/workflows/tests.yml)
 
-A Flask-based machine learning web app that classifies email or message text as spam or legitimate using TF-IDF features and a Random Forest classifier.
+A Flask-based machine learning web app that specifically classifies email text as spam or legitimate using TF-IDF features and a Random Forest classifier.
 
 The project is designed as a portfolio-friendly demonstration of a complete ML workflow: data loading, model training, prediction, confidence scoring, user feedback collection, automated tests, and evaluation reporting.
 
@@ -185,7 +185,7 @@ The included dataset contains **100 labeled samples**:
 - 50 ham/legitimate samples
 - Balanced 1:1 class ratio
 - English-only examples
-- Mix of SMS-style and email-style messages
+- Focuses exclusively on email-style content
 
 This is a compact educational dataset for demonstrating the full ML pipeline. For production use, the next step would be scaling evaluation to a larger, real-world dataset with at least 1,000+ diverse messages.
 
