@@ -9,13 +9,15 @@ The project is designed as a portfolio-friendly demonstration of a complete ML w
 ## Features
 
 - Spam vs. legitimate message classification
-- Confidence score for each prediction
+- Confidence score and explainable prediction output (top contributing words) for each prediction
 - Flask web interface for checking messages
 - User feedback endpoint for correcting low-confidence predictions
 - Retraining workflow using feedback data
 - Input validation and error handling
-- Automated test suite with route, model, and validation tests
+- Automated test suite running on GitHub Actions CI/CD
 - Model evaluation report with metrics and visualizations
+- Fully configurable via environment variables
+- Containerized for easy deployment with Docker
 
 ## Screenshots
 
@@ -31,12 +33,16 @@ The project is designed as a portfolio-friendly demonstration of a complete ML w
 
 ```text
 Spam-detector/
+├── .github/
+│   └── workflows/
+│       └── tests.yml               # GitHub Actions CI pipeline
 ├── app.py                          # Flask web application
 ├── train_model.py                  # Model training script
 ├── model_evaluation.py             # Evaluation script for saved model
 ├── dataset.json                    # 100 labeled samples: 50 spam, 50 ham
 ├── Dockerfile                      # Docker image definition
 ├── docker-compose.yml              # One-command container setup
+├── .dockerignore                   # Docker build context exclusions
 ├── EVALUATION.md                   # Model evaluation report
 ├── model_metrics.json              # Generated evaluation metrics
 ├── model_evaluation_curves.png     # ROC and precision-recall curves
@@ -63,7 +69,7 @@ Generated local files such as `spam_detector_model.pkl`, `vectorizer.pkl`, `user
 
 ### Prerequisites
 
-- Python 3.7+
+- Python 3.8+
 - pip
 
 ### Setup
@@ -155,7 +161,7 @@ print(f"Confidence: {max(confidence) * 100:.1f}%")
 
 ## Self-Learning Feedback Flow
 
-The app uses a confidence threshold of `0.60`.
+The app uses a default confidence threshold of `0.60` (configurable via `UNCERTAINTY_THRESHOLD`).
 
 When prediction confidence is low, the result page can ask the user for feedback. Feedback is saved locally to `user_feedback.json`, and `train_model.py` can include that feedback during retraining.
 
@@ -282,11 +288,7 @@ High-impact next steps:
 
 1. Improve documentation and evaluation honesty
 2. Add logging and structured error handling
-3. Move configuration to environment variables
-4. Add CI with GitHub Actions
-5. Add Docker support
-6. Evaluate on a larger real-world dataset
-7. Add explainable prediction details
+3. Evaluate on a larger real-world dataset
 
 ## License
 
