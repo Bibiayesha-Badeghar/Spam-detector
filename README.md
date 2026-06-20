@@ -1,4 +1,4 @@
-# Spam Detector with Self-Learning Feedback
+# Email Spam Detector with Self-Learning Feedback
 
 [![CI](https://github.com/Bibiayesha-Badeghar/Spam-detector/actions/workflows/tests.yml/badge.svg)](https://github.com/Bibiayesha-Badeghar/Spam-detector/actions/workflows/tests.yml)
 
@@ -40,7 +40,7 @@ Spam-detector/
 ├── app.py                          # Flask web application
 ├── train_model.py                  # Model training script
 ├── model_evaluation.py             # Evaluation script for saved model
-├── dataset.json                    # 100 labeled samples: 50 spam, 50 ham
+├── dataset.json                    # 5000+ real-world email samples
 ├── Dockerfile                      # Docker image definition
 ├── docker-compose.yml              # One-command container setup
 ├── .dockerignore                   # Docker build context exclusions
