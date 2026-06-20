@@ -12,9 +12,17 @@ Features:
 import os
 import json
 import pickle
+import logging
 import webbrowser
 from datetime import datetime
 from flask import Flask, render_template, request, jsonify
+
+# Configure logging
+logging.basicConfig(
+    format="%(asctime)s | %(levelname)s | %(name)s | %(message)s",
+    level=logging.INFO
+)
+logger = logging.getLogger(__name__)
 
 app = Flask(__name__)
 
@@ -31,8 +39,10 @@ def load_model_and_vectorizer():
             vectorizer = pickle.load(f)
         return model, vectorizer, None
     except FileNotFoundError as e:
+        logger.error(f"Model files not found. ({str(e)})")
         return None, None, f"Error: Model files not found. Please run train_model.py first. ({str(e)})"
     except Exception as e:
+        logger.exception("Failed to load model or vectorizer.")
         return None, None, f"Error loading model: {str(e)}"
 
 # Load model at startup
@@ -47,7 +57,11 @@ def save_feedback(email_text, actual_label, predicted_label, confidence):
         try:
             with open(FEEDBACK_FILE, 'r') as f:
                 feedback_data = json.load(f)
-        except Exception:
+        except json.JSONDecodeError:
+            logger.warning("Feedback file contains invalid JSON. Starting fresh.")
+            feedback_data = []
+        except IOError:
+            logger.warning(f"Could not read feedback file {FEEDBACK_FILE}. Starting fresh.")
             feedback_data = []
     
     # Add new feedback
@@ -64,7 +78,8 @@ def save_feedback(email_text, actual_label, predicted_label, confidence):
         with open(FEEDBACK_FILE, 'w') as f:
             json.dump(feedback_data, f, indent=2)
         return True, len(feedback_data)
-    except Exception as e:
+    except IOError as e:
+        logger.exception("Failed to write feedback data to disk.")
         return False, str(e)
 
 def validate_email_input(email_text):
@@ -164,6 +179,7 @@ def check():
                 for word, score in feature_scores[:5]
             ]
         except Exception:
+            logger.exception("Failed to compute top features for explainability.")
             top_features = []
         
         return render_template(
@@ -179,6 +195,7 @@ def check():
         )
         
     except Exception as e:
+        logger.exception("Prediction process failed.")
         return render_template(
             "result.html",
             email="",
@@ -232,6 +249,7 @@ def feedback():
             }), 500
             
     except Exception as e:
+        logger.exception("Error processing feedback request.")
         return jsonify({
             'success': False,
             'error': f'Error processing feedback: {str(e)}'
@@ -267,6 +285,7 @@ def retrain():
         })
         
     except Exception as e:
+        logger.exception("Model retraining failed.")
         return jsonify({
             'success': False,
             'error': f'Retraining error: {str(e)}'
@@ -283,12 +302,21 @@ def status():
                 feedback_count = len(json.load(f))
         
         return jsonify({
+            'success': True,
             'model_loaded': model is not None,
             'feedback_count': feedback_count,
             'uncertainty_threshold': UNCERTAINTY_THRESHOLD
         })
-    except Exception as e:
+    except IOError as e:
+        logger.error(f"Could not read feedback file for status: {e}")
         return jsonify({
+            'success': False,
+            'error': f"Failed to read feedback status: {e}"
+        }), 500
+    except Exception as e:
+        logger.exception("Failed to retrieve status.")
+        return jsonify({
+            'success': False,
             'model_loaded': False,
             'error': str(e)
         }), 500
@@ -301,13 +329,13 @@ if __name__ == "__main__":
     if os.environ.get("WERKZEUG_RUN_MAIN") == "true":
         webbrowser.open(f"http://127.0.0.1:{port}/")
     
-    print("\n" + "="*60)
-    print("SPAM DETECTOR WEB APP STARTING")
-    print("="*60)
-    print(f"Model loaded: {model is not None}")
-    print(f"Uncertainty threshold: {UNCERTAINTY_THRESHOLD*100:.0f}%")
-    print(f"Feedback file: {FEEDBACK_FILE}")
-    print(f"\nOpen: http://{host}:{port}/")
-    print("="*60 + "\n")
+    logger.info("="*60)
+    logger.info("SPAM DETECTOR WEB APP STARTING")
+    logger.info("="*60)
+    logger.info(f"Model loaded: {model is not None}")
+    logger.info(f"Uncertainty threshold: {UNCERTAINTY_THRESHOLD*100:.0f}%")
+    logger.info(f"Feedback file: {FEEDBACK_FILE}")
+    logger.info(f"Open: http://{host}:{port}/")
+    logger.info("="*60)
     
     app.run(host=host, port=port, debug=debug, use_reloader=debug)

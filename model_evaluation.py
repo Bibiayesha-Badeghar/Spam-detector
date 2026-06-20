@@ -12,6 +12,7 @@ Comprehensive evaluation of the spam detection model including:
 import json
 import pickle
 import os
+import logging
 from datetime import datetime
 from sklearn.metrics import (
     confusion_matrix, classification_report, accuracy_score,
@@ -20,6 +21,12 @@ from sklearn.metrics import (
 )
 import matplotlib.pyplot as plt
 import numpy as np
+
+logging.basicConfig(
+    format="%(asctime)s | %(levelname)s | %(name)s | %(message)s",
+    level=logging.INFO
+)
+logger = logging.getLogger(__name__)
 
 
 def load_model_and_vectorizer():
@@ -31,22 +38,25 @@ def load_model_and_vectorizer():
             vectorizer = pickle.load(f)
         return model, vectorizer
     except FileNotFoundError as e:
-        print(f"Error: Model files not found. {e}")
+        logger.error(f"Error: Model files not found. {e}")
+        return None, None
+    except Exception as e:
+        logger.exception("Failed to load model files.")
         return None, None
 
 
 def evaluate_model():
     """Perform comprehensive model evaluation."""
     
-    print("\n" + "="*70)
-    print("SPAM DETECTOR - MODEL EVALUATION")
-    print("="*70)
+    logger.info("="*70)
+    logger.info("SPAM DETECTOR - MODEL EVALUATION")
+    logger.info("="*70)
     
     # Load model
-    print("\n[1/6] Loading model and data...")
+    logger.info("[1/6] Loading model and data...")
     model, vectorizer = load_model_and_vectorizer()
     if model is None:
-        print("Failed to load model. Exiting.")
+        logger.error("Failed to load model. Exiting.")
         return None
     
     # Load dataset
@@ -57,16 +67,16 @@ def evaluate_model():
     labels = [1 if item['label'] == 'spam' else 0 for item in data]
     
     # Vectorize
-    print("[2/6] Vectorizing text data...")
+    logger.info("[2/6] Vectorizing text data...")
     X = vectorizer.transform(texts)
     
     # Predictions
-    print("[3/6] Generating predictions...")
+    logger.info("[3/6] Generating predictions...")
     y_pred = model.predict(X)
     y_pred_proba = model.predict_proba(X)[:, 1]
     
     # Calculate metrics
-    print("[4/6] Calculating metrics...")
+    logger.info("[4/6] Calculating metrics...")
     
     accuracy = accuracy_score(labels, y_pred)
     precision = precision_score(labels, y_pred, zero_division=0)
@@ -89,7 +99,7 @@ def evaluate_model():
     )
     
     # Generate curves
-    print("[5/6] Generating ROC and Precision-Recall curves...")
+    logger.info("[5/6] Generating ROC and Precision-Recall curves...")
     
     fpr, tpr, _ = roc_curve(labels, y_pred_proba)
     roc_auc_curve = auc(fpr, tpr)
@@ -125,10 +135,10 @@ def evaluate_model():
     
     plt.tight_layout()
     plt.savefig('model_evaluation_curves.png', dpi=300, bbox_inches='tight')
-    print("   Saved: model_evaluation_curves.png")
+    logger.info("   Saved: model_evaluation_curves.png")
     
     # Save metrics
-    print("[6/6] Saving evaluation report...")
+    logger.info("[6/6] Saving evaluation report...")
     
     metrics = {
         'timestamp': datetime.now().isoformat(),
@@ -170,35 +180,34 @@ def evaluate_model():
     # Save JSON metrics
     with open('model_metrics.json', 'w') as f:
         json.dump(metrics, f, indent=2)
-    print("   Saved: model_metrics.json")
+    logger.info("   Saved: model_metrics.json")
     
     # Print report
-    print("\n" + "="*70)
-    print("EVALUATION RESULTS")
-    print("="*70)
-    print(f"\nDataset: {metrics['dataset_info']['total_samples']} samples")
-    print(f"  - Spam: {metrics['dataset_info']['spam_count']} ({metrics['dataset_info']['spam_ratio']})")
-    print(f"  - Ham:  {metrics['dataset_info']['ham_count']}")
+    logger.info("="*70)
+    logger.info("EVALUATION RESULTS")
+    logger.info("="*70)
+    logger.info(f"Dataset: {metrics['dataset_info']['total_samples']} samples")
+    logger.info(f"  - Spam: {metrics['dataset_info']['spam_count']} ({metrics['dataset_info']['spam_ratio']})")
+    logger.info(f"  - Ham:  {metrics['dataset_info']['ham_count']}")
     
-    print(f"\nPerformance Metrics:")
-    print(f"  - Accuracy:  {accuracy:.4f} ({accuracy*100:.2f}%)")
-    print(f"  - Precision: {precision:.4f}")
-    print(f"  - Recall:    {recall:.4f}")
-    print(f"  - F1-Score:  {f1:.4f}")
-    print(f"  - ROC AUC:   {roc_auc:.4f}")
+    logger.info("Performance Metrics:")
+    logger.info(f"  - Accuracy:  {accuracy:.4f} ({accuracy*100:.2f}%)")
+    logger.info(f"  - Precision: {precision:.4f}")
+    logger.info(f"  - Recall:    {recall:.4f}")
+    logger.info(f"  - F1-Score:  {f1:.4f}")
+    logger.info(f"  - ROC AUC:   {roc_auc:.4f}")
     
-    print(f"\nConfusion Matrix:")
-    print(f"  - True Negatives:  {tn}")
-    print(f"  - False Positives: {fp}")
-    print(f"  - False Negatives: {fn}")
-    print(f"  - True Positives:  {tp}")
+    logger.info("Confusion Matrix:")
+    logger.info(f"  - True Negatives:  {tn}")
+    logger.info(f"  - False Positives: {fp}")
+    logger.info(f"  - False Negatives: {fn}")
+    logger.info(f"  - True Positives:  {tp}")
     
-    print(f"\nDetailed Classification Report:")
-    print(classification_report(labels, y_pred, target_names=['Ham', 'Spam']))
+    logger.info("Detailed Classification Report:\n%s", classification_report(labels, y_pred, target_names=['Ham', 'Spam']))
     
-    print("="*70)
-    print("✅ Evaluation complete!")
-    print("="*70 + "\n")
+    logger.info("="*70)
+    logger.info("✅ Evaluation complete!")
+    logger.info("="*70)
     
     return metrics
 

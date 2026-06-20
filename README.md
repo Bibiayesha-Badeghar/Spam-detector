@@ -18,6 +18,7 @@ The project is designed as a portfolio-friendly demonstration of a complete ML w
 - Model evaluation report with metrics and visualizations
 - Fully configurable via environment variables
 - Containerized for easy deployment with Docker
+- Production-grade structured logging and robust exception handling
 
 ## Screenshots
 
@@ -286,9 +287,9 @@ The app handles:
 
 High-impact next steps:
 
-1. Improve documentation and evaluation honesty
-2. Add logging and structured error handling
-3. Evaluate on a larger real-world dataset
+1. Evaluate on a larger real-world dataset
+2. Secure the `/retrain` endpoint with basic authentication
+3. Set up automated model deployment to a cloud provider
 
 ## License
 
