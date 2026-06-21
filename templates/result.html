@@ -242,7 +242,9 @@
             <div class="actions">
               <button class="btn copy" id="copyBtn">Copy Result</button>
               <button class="btn primary" id="checkAnotherBtn">Check Another Email</button>
+              {% if 'spam' in label.lower() %}
               <button class="btn ghost" id="highlightBtn">Highlight Suspicious</button>
+              {% endif %}
             </div>
 
             <!-- Explainability: top contributing features -->
