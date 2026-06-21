@@ -14,6 +14,7 @@ import json
 import pickle
 import logging
 import webbrowser
+import re
 from datetime import datetime
 from flask import Flask, render_template, request, jsonify
 
@@ -228,6 +229,43 @@ def check():
             ),
             500,
         )
+
+
+@app.route("/highlight", methods=["POST"])
+def highlight():
+    """
+    Highlights the top spam indicators in the given email text.
+    Expected JSON: { "email_text": "..." }
+    """
+    try:
+        data = request.get_json()
+        email_text = data.get("email_text", "").strip()
+        if not email_text or not model or not vectorizer:
+            return jsonify({"highlighted_html": email_text})
+
+        X = vectorizer.transform([email_text])
+        feature_names = vectorizer.get_feature_names_out()
+        importances = model.feature_importances_
+        nonzero_indices = X.nonzero()[1]
+
+        feature_scores = []
+        for idx in nonzero_indices:
+            score = float(importances[idx]) * float(X[0, idx])
+            feature_scores.append((feature_names[idx], score))
+
+        feature_scores.sort(key=lambda x: x[1], reverse=True)
+        top_words = [word for word, score in feature_scores[:5]]
+
+        highlighted = email_text
+        for word in top_words:
+            # Case-insensitive replacement, wrapping word in <mark> tag
+            pattern = re.compile(r'\b(' + re.escape(word) + r')\b', re.IGNORECASE)
+            highlighted = pattern.sub(r'<mark style="background:var(--danger); color:white; padding:0 4px; border-radius:4px">\1</mark>', highlighted)
+
+        return jsonify({"highlighted_html": highlighted})
+    except Exception as e:
+        logger.exception("Highlighting failed.")
+        return jsonify({"highlighted_html": email_text})
 
 
 # Feedback endpoint (AJAX for self-training)
