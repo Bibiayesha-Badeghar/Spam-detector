@@ -48,7 +48,33 @@
     .btn.ghost { background: rgba(255,255,255,0.05); color: var(--text); border: 1px solid var(--card-border); }
     .btn.ghost:hover:not([disabled]) { background: rgba(255,255,255,0.1); }
     
-    @media (max-width: 900px) { .result-grid { grid-template-columns: 1fr; } }
+    /* Laptop */
+    @media (max-width: 1024px) {
+      .page { max-width: 95%; }
+      .result-grid { grid-template-columns: 1fr 340px; gap: 24px; }
+    }
+
+    /* Tablet */
+    @media (max-width: 900px) {
+      body { padding: 20px; }
+      .result-grid { grid-template-columns: 1fr; }
+      .email-display { max-height: 300px; }
+    }
+
+    /* Mobile */
+    @media (max-width: 480px) {
+      body { padding: 12px; align-items: flex-start; }
+      .card { padding: 16px; border-radius: 16px; }
+      header { flex-direction: column; gap: 12px; align-items: flex-start; }
+      .title { font-size: 18px; gap: 10px; }
+      .sig-icon { width: 36px; height: 36px; font-size: 12px; }
+      .email-display { padding: 14px; font-size: 13px; max-height: 250px; }
+      .verdict-box { padding: 16px; }
+      .label { font-size: 14px; padding: 5px 12px; }
+      .feat-word { width: 80px; font-size: 12px; }
+      .feedback-box { padding: 14px; }
+      .feedback-box .btn { padding: 10px 8px; font-size: 11px; }
+    }
   </style>
 </head>
 <body>

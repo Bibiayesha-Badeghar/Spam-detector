@@ -1,5 +1,4 @@
 import pickle
-import numpy as np
 
 # Load model and vectorizer
 with open('spam_detector_model.pkl', 'rb') as f:
@@ -11,7 +10,9 @@ email_text = """Subject: URGENT: Suspicious activity on your Chase account
 
 Hello,
 
-We have detected unauthorized login attempts on your Chase bank account. For your security, please verify your account information immediately by clicking this link:
+We have detected unauthorized login attempts on your Chase bank account.
+For your security, please verify your account information immediately
+by clicking this link:
 
 http://chase-security-verify.ru/login
 
@@ -44,5 +45,7 @@ word_importances.sort(key=lambda x: x['importance'], reverse=True)
 
 print("\nTop 10 most important features in this email:")
 for i, item in enumerate(word_importances[:10]):
-    print(f"{i+1}. {item['word']} (importance: {item['importance']:.6f})")
-
+    print(
+        f"{i+1}. {item['word']} "
+        f"(importance: {item['importance']:.6f})"
+    )

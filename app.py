@@ -259,11 +259,18 @@ def highlight():
         highlighted = email_text
         for word in top_words:
             # Case-insensitive replacement, wrapping word in <mark> tag
-            pattern = re.compile(r'\b(' + re.escape(word) + r')\b', re.IGNORECASE)
-            highlighted = pattern.sub(r'<mark style="background:var(--danger); color:white; padding:0 4px; border-radius:4px">\1</mark>', highlighted)
+            pattern = re.compile(
+                r'\b(' + re.escape(word) + r')\b',
+                re.IGNORECASE
+            )
+            mark_open = '<mark style="background:var(--danger);'
+            mark_open += ' color:white; padding:0 4px;'
+            mark_open += ' border-radius:4px">'
+            replacement = mark_open + r'\1</mark>'
+            highlighted = pattern.sub(replacement, highlighted)
 
         return jsonify({"highlighted_html": highlighted})
-    except Exception as e:
+    except Exception:
         logger.exception("Highlighting failed.")
         return jsonify({"highlighted_html": email_text})
 

@@ -82,9 +82,32 @@
     .feature strong { display: block; margin-bottom: 6px; font-size: 1.1rem; }
     .feature small { color: var(--muted); font-size: 0.95rem; line-height: 1.5; }
 
+    /* Laptop screens */
+    @media (max-width: 1024px) {
+      .wrap { max-width: 90%; gap: 28px; }
+      .hero h1 { font-size: 2.8rem; }
+    }
+
+    /* Tablet */
     @media (max-width: 880px) {
-      .wrap { grid-template-columns: 1fr; }
+      body { padding: 20px; }
+      .wrap { grid-template-columns: 1fr; gap: 24px; }
       .hero h1 { font-size: 2.5rem; }
+      .hero { text-align: center; }
+      .hero .btn { width: 100%; }
+    }
+
+    /* Mobile */
+    @media (max-width: 480px) {
+      body { padding: 12px; }
+      .hero h1 { font-size: 1.8rem; }
+      .lead { font-size: 0.95rem; }
+      .card { padding: 20px; border-radius: 16px; }
+      .btn { padding: 14px 24px; font-size: 1rem; }
+      .feature { gap: 12px; }
+      .dot { width: 36px; height: 36px; font-size: 14px; }
+      .feature strong { font-size: 1rem; }
+      .feature small { font-size: 0.85rem; }
     }
   </style>
 </head>
