@@ -39,3 +39,6 @@ Thumbs.db
 venv/
 env/
 .venv/
+
+# Local scratch scripts (not part of the project)
+scratch/

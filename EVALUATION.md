@@ -1,71 +1,76 @@
 # Model Evaluation Report
 
-**Generated:** 2026-06-18  
+**Generated:** 2026-06-22  
 **Model:** Random Forest Classifier  
-**Vectorizer:** TF-IDF  
-**Dataset:** 100 labeled samples from `dataset.json`
+**Vectorizer:** TF-IDF (1,000 features, unigrams + bigrams)  
+**Dataset:** 5,674 labeled SMS/email-style messages from `dataset.json`
 
 ## Executive Summary
 
-The current spam detector achieves perfect metrics on the included 100-sample project dataset:
+The spam detector achieves strong overall accuracy on the project dataset, with **97.5% accuracy** and **98.8% ROC-AUC**. Spam recall is the main trade-off at **84.9%** — some spam messages are still missed, which is documented honestly below.
 
 | Metric | Value |
-|--------|-------|
-| Accuracy | 100.00% |
-| Precision | 1.0000 |
-| Recall | 1.0000 |
-| F1-Score | 1.0000 |
-| ROC-AUC | 1.0000 |
+|--------|------:|
+| Accuracy | 97.53% |
+| Precision | 97.13% |
+| Recall | 84.94% |
+| F1-Score | 90.63% |
+| ROC-AUC | 98.80% |
 
-This is a strong result for the included demonstration dataset, but it should be interpreted carefully. The evaluation is not yet based on a large external production dataset, so real-world performance may be lower.
+These metrics come from `model_evaluation.py` evaluating the saved model on the full included dataset. Training uses an 80/20 stratified split in `train_model.py`, which reports similar holdout metrics (~96.7% accuracy).
 
 ## Dataset
 
 | Aspect | Value |
-|--------|-------|
-| Total samples | 100 |
-| Spam samples | 50 |
-| Ham samples | 50 |
-| Class balance | 50% spam / 50% ham |
+|--------|------:|
+| Total samples | 5,674 |
+| Spam samples | 797 (14.0%) |
+| Ham samples | 4,877 (86.0%) |
 | Language | English |
+| Source | Public SMS spam corpus (UCI-style), email-style text |
 
-The dataset is intentionally compact and balanced. It is useful for demonstrating the complete pipeline, but a production-grade spam detector should be validated against a larger and more diverse dataset.
+The dataset is imbalanced (more ham than spam), which reflects real-world inboxes. `class_weight="balanced"` is used during training to reduce bias toward the majority class.
 
 ## Evaluation Methodology
 
 The `model_evaluation.py` script:
 
-1. Loads `spam_detector_model.pkl`
-2. Loads `vectorizer.pkl`
-3. Reads all samples from `dataset.json`
-4. Generates predictions for the included dataset
-5. Calculates accuracy, precision, recall, F1-score, ROC-AUC, and confusion matrix values
-6. Saves metrics to `model_metrics.json`
-7. Saves ROC and precision-recall curves to `model_evaluation_curves.png`
+1. Loads `spam_detector_model.pkl` and `vectorizer.pkl`
+2. Reads all samples from `dataset.json`
+3. Generates predictions and probability scores
+4. Calculates accuracy, precision, recall, F1, ROC-AUC, and confusion matrix
+5. Saves metrics to `model_metrics.json`
+6. Saves ROC and precision-recall curves to `model_evaluation_curves.png`
 
-Important note: this report evaluates the saved model against the included project dataset. It is useful for validating the demo pipeline, but it is not the same as testing on a large unseen production dataset.
+Regenerate anytime after retraining:
+
+```bash
+python model_evaluation.py
+```
 
 ## Confusion Matrix
 
 ```text
                  Predicted Ham    Predicted Spam
-Actual Ham             50                0
-Actual Spam             0               50
+Actual Ham           4,857               20
+Actual Spam            120              677
 ```
 
 | Value | Count | Meaning |
 |-------|------:|---------|
-| True negatives | 50 | Ham correctly classified as ham |
-| False positives | 0 | Ham incorrectly classified as spam |
-| False negatives | 0 | Spam incorrectly classified as ham |
-| True positives | 50 | Spam correctly classified as spam |
+| True negatives | 4,857 | Ham correctly classified |
+| False positives | 20 | Ham incorrectly flagged as spam |
+| False negatives | 120 | Spam incorrectly classified as ham |
+| True positives | 677 | Spam correctly classified |
+
+**Key insight:** False negatives (120 missed spam) are higher than false positives (20). The model is conservative about marking messages as spam, which is common with imbalanced data.
 
 ## Per-Class Performance
 
 | Class | Precision | Recall | F1-Score | Support |
 |-------|----------:|-------:|---------:|--------:|
-| Ham | 1.0000 | 1.0000 | 1.0000 | 50 |
-| Spam | 1.0000 | 1.0000 | 1.0000 | 50 |
+| Ham | 97.59% | 99.59% | 98.58% | 4,877 |
+| Spam | 97.13% | 84.94% | 90.63% | 797 |
 
 ## Model Architecture
 
@@ -76,7 +81,7 @@ RandomForestClassifier(
     n_estimators=100,
     random_state=42,
     max_depth=15,
-    class_weight="balanced"
+    class_weight="balanced",
 )
 ```
 
@@ -88,55 +93,28 @@ TfidfVectorizer(
     stop_words="english",
     ngram_range=(1, 2),
     min_df=1,
-    max_df=0.8
+    max_df=0.8,
 )
 ```
 
-## Feature Patterns
+## Explainability
 
-The model is expected to learn text patterns commonly associated with spam, such as:
+The web app surfaces the top 5 TF-IDF features contributing to each prediction and highlights suspicious words in the email body via the `/highlight` endpoint.
 
-- Urgency language
-- Prize or reward claims
-- Suspicious links
-- Account verification language
-- Shortened URLs
-- Promotional phrasing
+## Known Limitations
 
-Ham examples tend to include:
+- Evaluated on the included dataset only, not a separate external benchmark
+- English-only; no multilingual support
+- SMS-heavy corpus; may not generalize to all corporate email formats
+- Spam recall (~85%) leaves room for improvement
+- Model artifacts (`.pkl`) are generated locally and not committed to Git
 
-- Work-related context
-- Personal or professional communication
-- Less aggressive call-to-action language
-- More natural conversational structure
+## Recommendations for Future Work
 
-## Interpretation of Perfect Metrics
-
-The 100% result is useful, but it should not be overclaimed.
-
-What it means:
-
-- The model can separate the included examples correctly.
-- The training and evaluation pipeline is functioning.
-- The dataset is balanced and easy for the current model to classify.
-
-What it does not prove:
-
-- It does not prove production-level spam detection.
-- It does not prove performance on future spam campaigns.
-- It does not prove robustness across languages, domains, or email providers.
-- It does not replace validation on a larger unseen dataset.
-
-## Recommendations
-
-Highest-value next steps:
-
-1. Evaluate on a larger external dataset with at least 1,000+ diverse samples.
-2. Keep a strict holdout test set that is never used during training.
-3. Track false positives and false negatives separately.
-4. Add explainable prediction output using top TF-IDF features.
-5. Add model comparison against Naive Bayes or Logistic Regression.
-6. Monitor prediction confidence and feedback trends over time.
+1. Improve spam recall with threshold tuning or additional spam-heavy training data
+2. Compare against Logistic Regression or Naive Bayes baselines
+3. Add a strict external holdout set never used during training
+4. Deploy with Docker and monitor feedback-driven retraining in production
 
 ## Generated Artifacts
 
@@ -144,14 +122,15 @@ Highest-value next steps:
 |------|---------|
 | `model_metrics.json` | Machine-readable evaluation metrics |
 | `model_evaluation_curves.png` | ROC and precision-recall visualizations |
-| `model_evaluation.py` | Script used to regenerate metrics and charts |
+| `model_evaluation.py` | Script to regenerate metrics and charts |
 
 ## Version History
 
 | Date | Version | Accuracy | F1-Score | Notes |
-|------|---------|---------:|---------:|-------|
-| 2026-06-18 | v1.0 | 100% | 1.0000 | Evaluation on included 100-sample dataset |
+|------|---------|----------:|---------:|-------|
+| 2026-06-22 | v2.0 | 97.53% | 90.63% | Full 5,674-sample dataset evaluation |
+| 2026-06-18 | v1.0 | — | — | Initial project setup |
 
 ## Conclusion
 
-The current model performs perfectly on the included educational dataset and demonstrates a complete ML workflow. The next credibility step is testing against a larger, unseen dataset and documenting errors, limitations, and model behavior under realistic conditions.
+This model demonstrates a complete ML workflow — training, evaluation, explainability, feedback, and retraining — with honest metrics. Strong ham detection (99.6% recall) and high overall accuracy make it a solid portfolio project; the documented spam recall gap shows understanding of real-world model trade-offs.

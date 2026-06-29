@@ -18,7 +18,7 @@ The project is designed as a portfolio-friendly demonstration of a complete ML w
 - Model evaluation report with metrics and visualizations
 - Fully configurable via environment variables
 - Containerized for easy deployment with Docker
-- Production-grade structured logging and robust exception handling
+- Structured logging and robust exception handling
 
 ## Screenshots
 
@@ -177,43 +177,49 @@ Workflow:
 6. Model can be retrained with original data + feedback
 ```
 
+## Tech Stack
+
+| Layer | Tools |
+|-------|-------|
+| ML | scikit-learn (Random Forest, TF-IDF) |
+| Backend | Python, Flask |
+| Frontend | HTML, CSS (responsive UI) |
+| Testing | pytest, pytest-cov |
+| CI/CD | GitHub Actions |
+| Deployment | Docker, docker-compose |
+
 ## Dataset
 
-The included dataset contains **100 labeled samples**:
+The included dataset contains **5,674 labeled messages** (SMS/email-style):
 
-- 50 spam samples
-- 50 ham/legitimate samples
-- Balanced 1:1 class ratio
+- 797 spam (14.0%)
+- 4,877 ham / legitimate (86.0%)
 - English-only examples
-- Focuses exclusively on email-style content
-
-This is a compact educational dataset for demonstrating the full ML pipeline. For production use, the next step would be scaling evaluation to a larger, real-world dataset with at least 1,000+ diverse messages.
+- Imbalanced, reflecting real-world inboxes
 
 ## Model Evaluation
 
-The saved model currently achieves perfect metrics on the included 100-sample dataset:
+Latest evaluation on the full dataset (see [EVALUATION.md](./EVALUATION.md)):
 
 | Metric | Value |
-|--------|-------|
-| Accuracy | 100% |
-| Precision | 1.0000 |
-| Recall | 1.0000 |
-| F1-Score | 1.0000 |
-| ROC-AUC | 1.0000 |
+|--------|------:|
+| Accuracy | 97.53% |
+| Precision | 97.13% |
+| Recall | 84.94% |
+| F1-Score | 90.63% |
+| ROC-AUC | 98.80% |
 
-Important: these metrics are measured on the included project dataset, not on a large external production dataset. Perfect scores on a small dataset should be treated as a successful demo result, not proof of production-grade generalization.
-
-For details, see [EVALUATION.md](./EVALUATION.md).
+Spam recall (~85%) is the main area for improvement — the model misses some spam to avoid false positives. Metrics are regenerated with `python model_evaluation.py` after retraining.
 
 ## Testing
 
-The project currently has **58 passing tests**.
+The project includes an automated test suite covering routes, model loading, validation, and API security.
 
 Latest local test result:
 
 ```text
-58 passed
-Total coverage: 62%
+67 passed
+Total coverage: ~74%
 ```
 
 Test areas:
@@ -244,7 +250,8 @@ pytest --cov=. --cov-report=html
 | `/checkpage` | GET | Message input form |
 | `/check` | POST | Submit text for spam classification |
 | `/feedback` | POST | Submit user correction |
-| `/retrain` | POST | Retrain model with feedback |
+| `/highlight` | POST | Highlight top spam indicators (JSON) |
+| `/retrain` | POST | Retrain model with feedback (API key optional) |
 | `/status` | GET | Return model and feedback status |
 
 ## Configuration
@@ -255,9 +262,10 @@ All settings can be overridden via environment variables:
 |----------|---------|-------------|
 | `HOST` | `127.0.0.1` | Server bind address |
 | `PORT` | `5000` | Server port |
-| `FLASK_DEBUG` | `true` | Enable debug mode |
+| `FLASK_DEBUG` | `false` | Enable debug mode and auto-open browser |
 | `UNCERTAINTY_THRESHOLD` | `0.60` | Confidence threshold for feedback prompt |
 | `FEEDBACK_FILE` | `user_feedback.json` | Path to feedback storage file |
+| `RETRAIN_API_KEY` | *(empty)* | If set, `/retrain` requires `X-API-Key` header |
 
 Example:
 
@@ -278,18 +286,25 @@ The app handles:
 
 ## Limitations
 
-- Dataset is intentionally small: 100 labeled samples
-- Evaluation does not yet use a large external holdout dataset
-- Saved model files are generated locally and ignored by Git
-- `/retrain` is available as a local demo endpoint and should be protected before deployment
+- English-only; SMS-heavy corpus may not cover all email formats
+- Spam recall (~85%) — some spam messages are missed
+- Model files (`.pkl`) are generated locally and not committed to Git
+- Set `RETRAIN_API_KEY` before exposing `/retrain` in production
 
-## Roadmap
+## Skills Demonstrated
 
-High-impact next steps:
+- End-to-end ML pipeline: data loading, vectorization, training, evaluation
+- REST API design with input validation and error handling
+- Explainable AI: top feature importance and word highlighting
+- Human-in-the-loop learning via user feedback and retraining
+- Automated testing and CI/CD with GitHub Actions
+- Containerization with Docker
 
-1. Evaluate on a larger real-world dataset
-2. Secure the `/retrain` endpoint with basic authentication
-3. Set up automated model deployment to a cloud provider
+## Future Improvements
+
+1. Improve spam recall with threshold tuning or additional training data
+2. Deploy to a cloud platform (Render, Railway, or AWS)
+3. Add model comparison baselines (Naive Bayes, Logistic Regression)
 
 ## License
 

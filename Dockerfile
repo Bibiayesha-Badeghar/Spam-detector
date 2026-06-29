@@ -3,7 +3,9 @@ FROM python:3.11-slim AS base
 
 # Prevent Python from buffering stdout/stderr (important for Docker logs)
 ENV PYTHONDONTWRITEBYTECODE=1 \
-    PYTHONUNBUFFERED=1
+    PYTHONUNBUFFERED=1 \
+    FLASK_DEBUG=false \
+    HOST=0.0.0.0
 
 # ── Dependencies ────────────────────────────────────────────
 WORKDIR /app

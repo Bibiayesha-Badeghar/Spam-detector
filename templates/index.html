@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <title>Scanner - Spam Detector</title>
+  <title>Check Message - Spam Detector</title>
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
   <style>
@@ -75,7 +75,7 @@
     <div class="card">
       <div style="display:flex; justify-content:space-between; align-items:flex-start">
         <div>
-          <h1 class="title"><span class="sig-icon">SD</span> Threat Scanner</h1>
+          <h1 class="title"><span class="sig-icon">SD</span> Check Message</h1>
           <p class="subtitle">Paste the suspicious message below to initiate deep analysis.</p>
         </div>
         <a href="/" class="btn ghost" style="padding: 10px 16px; font-size: 14px;">Back</a>
@@ -84,7 +84,7 @@
       <form action="/check" method="post" id="analyzeForm">
         <textarea id="email_text" name="email_text" placeholder="Awaiting raw text input..."></textarea>
         <div class="controls">
-          <button class="btn primary" type="submit">Analyze Payload</button>
+          <button class="btn primary" type="submit">Classify Message</button>
           <button class="btn ghost" type="button" onclick="document.getElementById('email_text').value=''">Clear</button>
         </div>
       </form>

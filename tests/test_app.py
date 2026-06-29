@@ -221,6 +221,97 @@ class TestFeedbackEndpoint:
 
 
 @pytest.mark.app
+class TestStatusEndpoint:
+    """Test model status endpoint"""
+
+    def test_status_returns_200(self, client):
+        response = client.get("/status")
+        assert response.status_code == 200
+
+    def test_status_returns_json(self, client):
+        response = client.get("/status")
+        assert response.content_type.startswith("application/json")
+
+    def test_status_includes_model_loaded(self, client):
+        response = client.get("/status")
+        data = json.loads(response.data)
+        assert data["success"] is True
+        assert "model_loaded" in data
+        assert "feedback_count" in data
+        assert "uncertainty_threshold" in data
+
+
+@pytest.mark.app
+class TestHighlightEndpoint:
+    """Test word highlighting endpoint"""
+
+    def test_highlight_returns_json(self, client, sample_spam_emails):
+        response = client.post(
+            "/highlight",
+            data=json.dumps({"email_text": sample_spam_emails[0]}),
+            content_type="application/json",
+        )
+        assert response.status_code == 200
+        assert response.content_type.startswith("application/json")
+
+    def test_highlight_includes_html(self, client, sample_spam_emails):
+        response = client.post(
+            "/highlight",
+            data=json.dumps({"email_text": sample_spam_emails[0]}),
+            content_type="application/json",
+        )
+        data = json.loads(response.data)
+        assert "highlighted_html" in data
+        assert len(data["highlighted_html"]) > 0
+
+    def test_highlight_handles_empty_text(self, client):
+        response = client.post(
+            "/highlight",
+            data=json.dumps({"email_text": ""}),
+            content_type="application/json",
+        )
+        assert response.status_code == 200
+
+
+@pytest.mark.app
+class TestRetrainEndpoint:
+    """Test model retraining endpoint"""
+
+    def test_retrain_without_feedback_returns_400(self, client, monkeypatch, tmp_path):
+        feedback_file = tmp_path / "empty_feedback.json"
+        monkeypatch.setattr("app.FEEDBACK_FILE", str(feedback_file))
+        response = client.post("/retrain")
+        assert response.status_code == 400
+
+    def test_retrain_requires_api_key_when_configured(self, client, monkeypatch):
+        monkeypatch.setattr("app.RETRAIN_API_KEY", "secret-test-key")
+        response = client.post("/retrain")
+        assert response.status_code == 401
+
+    def test_retrain_accepts_valid_api_key(self, client, monkeypatch, tmp_path):
+        feedback_file = tmp_path / "feedback.json"
+        feedback_file.write_text(
+            json.dumps(
+                [
+                    {
+                        "timestamp": "2026-06-22T10:00:00",
+                        "text": "Test spam message for retraining pipeline",
+                        "label": "spam",
+                        "predicted": "ham",
+                        "confidence": 0.55,
+                    }
+                ]
+            )
+        )
+        monkeypatch.setattr("app.FEEDBACK_FILE", str(feedback_file))
+        monkeypatch.setattr("app.RETRAIN_API_KEY", "secret-test-key")
+        response = client.post("/retrain", headers={"X-API-Key": "secret-test-key"})
+        assert response.status_code == 200
+        data = json.loads(response.data)
+        assert data["success"] is True
+
+
+@pytest.mark.app
 class TestErrorHandling:
     """Test error handling in Flask app"""
 

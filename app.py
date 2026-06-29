@@ -1,4 +1,4 @@
-"""
+﻿"""
 SPAM DETECTOR - FLASK WEB APPLICATION
 ======================================
 Interactive web interface for spam detection with self-learning capability.
@@ -29,6 +29,17 @@ app = Flask(__name__)
 # Configuration (override via environment variables)
 UNCERTAINTY_THRESHOLD = float(os.environ.get("UNCERTAINTY_THRESHOLD", "0.60"))
 FEEDBACK_FILE = os.environ.get("FEEDBACK_FILE", "user_feedback.json")
+RETRAIN_API_KEY = os.environ.get("RETRAIN_API_KEY", "")
+
+
+def is_retrain_authorized():
+    """Require API key for retraining when RETRAIN_API_KEY is configured."""
+    if not RETRAIN_API_KEY:
+        return True
+    provided = request.headers.get("X-API-Key")
+    if not provided and request.is_json:
+        provided = (request.get_json(silent=True) or {}).get("api_key")
+    return provided == RETRAIN_API_KEY
 
 
 def load_model_and_vectorizer():
@@ -342,6 +353,9 @@ def retrain():
     """
     global model, vectorizer
 
+    if not is_retrain_authorized():
+        return jsonify({"success": False, "error": "Unauthorized"}), 401
+
     try:
         # Check if feedback exists
         if not os.path.exists(FEEDBACK_FILE):
@@ -408,9 +422,9 @@ def status():
 if __name__ == "__main__":
     host = os.environ.get("HOST", "127.0.0.1")
     port = int(os.environ.get("PORT", 5000))
-    debug = os.environ.get("FLASK_DEBUG", "true").lower() in ("1", "true", "yes")
+    debug = os.environ.get("FLASK_DEBUG", "false").lower() in ("1", "true", "yes")
 
-    if os.environ.get("WERKZEUG_RUN_MAIN") == "true":
+    if debug and os.environ.get("WERKZEUG_RUN_MAIN") == "true":
         webbrowser.open(f"http://127.0.0.1:{port}/")
 
     logger.info("=" * 60)

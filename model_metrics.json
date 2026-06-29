@@ -1,36 +1,36 @@
 {
-  "timestamp": "2026-06-18T01:09:10.650435",
+  "timestamp": "2026-06-22T23:45:51.948706",
   "dataset_info": {
-    "total_samples": 100,
-    "spam_count": 50,
-    "ham_count": 50,
-    "spam_ratio": "50.0%"
+    "total_samples": 5674,
+    "spam_count": 797,
+    "ham_count": 4877,
+    "spam_ratio": "14.0%"
   },
   "performance_metrics": {
-    "accuracy": 1.0,
-    "precision": 1.0,
-    "recall": 1.0,
-    "f1_score": 1.0,
-    "roc_auc": 1.0
+    "accuracy": 0.9753260486429327,
+    "precision": 0.9713055954088953,
+    "recall": 0.849435382685069,
+    "f1_score": 0.9062918340026773,
+    "roc_auc": 0.9879516661954341
   },
   "confusion_matrix": {
-    "true_negatives": 50,
-    "false_positives": 0,
-    "false_negatives": 0,
-    "true_positives": 50
+    "true_negatives": 4857,
+    "false_positives": 20,
+    "false_negatives": 120,
+    "true_positives": 677
   },
   "detailed_metrics": {
     "ham": {
-      "precision": 1.0,
-      "recall": 1.0,
-      "f1_score": 1.0,
-      "support": 50
+      "precision": 0.9758890898131405,
+      "recall": 0.9958991183104368,
+      "f1_score": 0.9857925715445505,
+      "support": 4877
     },
     "spam": {
-      "precision": 1.0,
-      "recall": 1.0,
-      "f1_score": 1.0,
-      "support": 50
+      "precision": 0.9713055954088953,
+      "recall": 0.849435382685069,
+      "f1_score": 0.9062918340026773,
+      "support": 797
     }
   }
 }
