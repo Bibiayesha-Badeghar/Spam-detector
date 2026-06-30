@@ -81,14 +81,33 @@
         <a href="/" class="btn ghost" style="padding: 10px 16px; font-size: 14px;">Back</a>
       </div>
       
-      <form action="/check" method="post" id="analyzeForm">
+      <form action="/check" method="post" id="analyzeForm" onsubmit="return validateForm()">
         <textarea id="email_text" name="email_text" placeholder="Awaiting raw text input..."></textarea>
         <div class="controls">
           <button class="btn primary" type="submit">Classify Message</button>
-          <button class="btn ghost" type="button" onclick="document.getElementById('email_text').value=''">Clear</button>
+          <button class="btn ghost" type="button" onclick="document.getElementById('email_text').value=''; document.getElementById('email_text').style.borderColor=''">Clear</button>
         </div>
       </form>
     </div>
+    <script>
+      function validateForm() {
+        const ta = document.getElementById('email_text');
+        if (!ta.value.trim()) {
+          ta.style.borderColor = '#ff0844'; // var(--danger)
+          ta.style.boxShadow = '0 0 0 4px rgba(255,8,68,0.1)';
+          ta.placeholder = 'Please paste an email here first!';
+          return false;
+        }
+        return true;
+      }
+      
+      document.getElementById('email_text').addEventListener('input', function() {
+        if(this.value.trim()) {
+          this.style.borderColor = '';
+          this.style.boxShadow = '';
+        }
+      });
+    </script>
 
     <div class="card" style="align-self: flex-start;">
       <h3 style="margin:0 0 16px; font-size:18px; color:var(--text)">Load Test Vectors</h3>

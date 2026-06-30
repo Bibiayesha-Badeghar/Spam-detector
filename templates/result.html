@@ -16,7 +16,7 @@
     body { margin: 0; min-height: 100vh; font-family: 'Outfit', sans-serif; background: var(--bg); color: var(--text); display: flex; align-items: center; justify-content: center; padding: 32px; }
     .glow { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 80vw; height: 80vw; background: radial-gradient(circle, rgba(0,242,254,0.05) 0%, rgba(0,0,0,0) 60%); z-index: 0; pointer-events: none; }
     
-    .page { width: 100%; max-width: 1000px; z-index: 1; }
+    .page { width: 100%; max-width: 1100px; z-index: 1; }
     .card { background: var(--card-bg); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); padding: 32px; border-radius: 24px; border: 1px solid var(--card-border); box-shadow: 0 24px 80px rgba(0,0,0,0.5); }
     
     header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; border-bottom: 1px solid var(--card-border); padding-bottom: 24px; }
@@ -83,7 +83,10 @@
     <div class="card">
       <header>
         <div class="title"><span class="sig-icon">SD</span> Analysis Complete</div>
-        <a href="/checkpage" class="btn ghost">Scan Another</a>
+        <div style="display:flex; gap:12px;">
+          <a href="/" class="btn ghost" style="padding: 10px 16px; font-size: 14px;">Home</a>
+          <a href="/checkpage" class="btn primary" style="padding: 10px 16px; font-size: 14px;">Scan Another</a>
+        </div>
       </header>
       
       <div class="result-grid">
